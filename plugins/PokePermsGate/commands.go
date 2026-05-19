@@ -27,6 +27,37 @@ func colorText(s string) component.Component {
 	return comp
 }
 
+// এই ফাংশনটি চেক করবে প্লেয়ার অ্যাডমিন কি না (Config এবং Permission Node দুটো থেকেই)
+func hasAdminPerm(source command.Source, cfg *Config) bool {
+	player, isPlayer := source.(proxy.Player)
+	if !isPlayer {
+		return true // কনসোল থেকে কমান্ড দিলে সবসময় পারমিশন পাবে
+	}
+
+	// Config.yml এর admin লিস্ট চেক করবে
+	playerName := strings.ToLower(player.Username())
+	for _, admin := range cfg.Admins {
+		if strings.ToLower(admin) == playerName {
+			return true
+		}
+	}
+
+	// যদি Config এ না থাকে, তবে Gate এর রেগুলার পারমিশন নোড চেক করবে
+	return source.HasPermission("pokeperms.gate.admin")
+}
+
+// এটি একটি র‍্যাপার (Wrapper) ফাংশন। এটি শুধুমাত্র অ্যাডমিনদের কমান্ড রান করতে দিবে।
+// ভুলটি এখানেই ছিল (command.Command এর জায়গায় brigodier.Command হবে)
+func adminOnly(cfg *Config, next func(c *command.Context) error) brigodier.Command {
+	return command.Command(func(c *command.Context) error {
+		if !hasAdminPerm(c.Source, cfg) {
+			c.Source.SendMessage(colorText(cfg.Messages.Prefix + cfg.Messages.NoPermission))
+			return nil
+		}
+		return next(c)
+	})
+}
+
 func RegisterCommands(p *proxy.Proxy, storage *Storage, cfg *Config, msgMgr *MessagingManager) {
 	h := &commandHandler{
 		proxy:   p,
@@ -37,79 +68,71 @@ func RegisterCommands(p *proxy.Proxy, storage *Storage, cfg *Config, msgMgr *Mes
 
 	root := brigodier.Literal("pokeperms").
 		Requires(command.Requires(func(c *command.RequiresContext) bool {
-			_, isPlayer := c.Source.(proxy.Player)
-			if !isPlayer {
-				return true
-			}
-
-			hasPerm := c.Source.HasPermission("pokeperms.gate.admin")
-			if !hasPerm {
-				c.Source.SendMessage(colorText(cfg.Messages.Prefix + cfg.Messages.NoPermission))
-			}
-			return hasPerm
+			// এখানে সবসময় true থাকবে যাতে প্লেয়ার জয়েন করার সময় হুদাই এরর মেসেজ না দেয়
+			return true
 		})).
-		Executes(command.Command(func(c *command.Context) error {
+		Executes(adminOnly(cfg, func(c *command.Context) error {
 			c.Source.SendMessage(colorText(cfg.Messages.Prefix + "&7Version 1.0.0 - Use /pp user or /pp group"))
 			return nil
 		}))
 
 	userNode := brigodier.Literal("user").
 		Then(brigodier.Argument("player", brigodier.String).
-			Then(brigodier.Literal("info").Executes(command.Command(h.userInfo))).
-			Then(brigodier.Literal("clear").Executes(command.Command(h.userClear))).
+			Then(brigodier.Literal("info").Executes(adminOnly(cfg, h.userInfo))).
+			Then(brigodier.Literal("clear").Executes(adminOnly(cfg, h.userClear))).
 			Then(brigodier.Literal("parent").
 				Then(brigodier.Literal("set").
 					Then(brigodier.Argument("group", brigodier.String).
-						Executes(command.Command(h.userParentSet)))).
+						Executes(adminOnly(cfg, h.userParentSet)))).
 				Then(brigodier.Literal("addtemp").
 					Then(brigodier.Argument("group", brigodier.String).
 						Then(brigodier.Argument("duration", brigodier.String).
-							Executes(command.Command(h.userParentAddTemp)))))).
+							Executes(adminOnly(cfg, h.userParentAddTemp)))))).
 			Then(brigodier.Literal("permission").
 				Then(brigodier.Literal("set").
 					Then(brigodier.Argument("node", brigodier.String).
 						Then(brigodier.Argument("value", brigodier.Bool).
-							Executes(command.Command(h.userPermSet)).
+							Executes(adminOnly(cfg, h.userPermSet)).
 							Then(brigodier.Argument("server", brigodier.String).
-								Executes(command.Command(h.userPermSet)))))).
+								Executes(adminOnly(cfg, h.userPermSet)))))).
 				Then(brigodier.Literal("unset").
 					Then(brigodier.Argument("node", brigodier.String).
-						Executes(command.Command(h.userPermUnset)).
+						Executes(adminOnly(cfg, h.userPermUnset)).
 						Then(brigodier.Argument("server", brigodier.String).
-							Executes(command.Command(h.userPermUnset)))))))
+							Executes(adminOnly(cfg, h.userPermUnset)))))))
 
 	groupNode := brigodier.Literal("group").
 		Then(brigodier.Argument("group_name", brigodier.String).
-			Then(brigodier.Literal("create").Executes(command.Command(h.groupCreate))).
-			Then(brigodier.Literal("delete").Executes(command.Command(h.groupDelete))).
-			Then(brigodier.Literal("info").Executes(command.Command(h.groupInfo))).
+			Then(brigodier.Literal("create").Executes(adminOnly(cfg, h.groupCreate))).
+			Then(brigodier.Literal("delete").Executes(adminOnly(cfg, h.groupDelete))).
+			Then(brigodier.Literal("info").Executes(adminOnly(cfg, h.groupInfo))).
 			Then(brigodier.Literal("prefix").
 				Then(brigodier.Literal("set").
 					Then(brigodier.Argument("prefix_str", brigodier.String).
-						Executes(command.Command(h.groupPrefix))))).
+						Executes(adminOnly(cfg, h.groupPrefix))))).
 			Then(brigodier.Literal("setweight").
 				Then(brigodier.Argument("weight", brigodier.Int).
-					Executes(command.Command(h.groupWeight)))).
+					Executes(adminOnly(cfg, h.groupWeight)))).
 			Then(brigodier.Literal("parent").
 				Then(brigodier.Literal("add").
-					Then(brigodier.Argument("parent_name", brigodier.String).Executes(command.Command(h.groupParentAdd)))).
+					Then(brigodier.Argument("parent_name", brigodier.String).Executes(adminOnly(cfg, h.groupParentAdd)))).
 				Then(brigodier.Literal("remove").
-					Then(brigodier.Argument("parent_name", brigodier.String).Executes(command.Command(h.groupParentRemove))))).
+					Then(brigodier.Argument("parent_name", brigodier.String).Executes(adminOnly(cfg, h.groupParentRemove))))).
 			Then(brigodier.Literal("permission").
 				Then(brigodier.Literal("set").
 					Then(brigodier.Argument("node", brigodier.String).
 						Then(brigodier.Argument("value", brigodier.Bool).
-							Executes(command.Command(h.groupPermSet)).
+							Executes(adminOnly(cfg, h.groupPermSet)).
 							Then(brigodier.Argument("server", brigodier.String).
-								Executes(command.Command(h.groupPermSet)))))).
+								Executes(adminOnly(cfg, h.groupPermSet)))))).
 				Then(brigodier.Literal("unset").
 					Then(brigodier.Argument("node", brigodier.String).
-						Executes(command.Command(h.groupPermUnset)).
+						Executes(adminOnly(cfg, h.groupPermUnset)).
 						Then(brigodier.Argument("server", brigodier.String).
-							Executes(command.Command(h.groupPermUnset)))))))
+							Executes(adminOnly(cfg, h.groupPermUnset)))))))
 
-	reloadNode := brigodier.Literal("reload").Executes(command.Command(h.handleReload))
-	syncNode := brigodier.Literal("sync").Executes(command.Command(h.handleSync))
+	reloadNode := brigodier.Literal("reload").Executes(adminOnly(cfg, h.handleReload))
+	syncNode := brigodier.Literal("sync").Executes(adminOnly(cfg, h.handleSync))
 
 	cmd := root.Then(userNode).Then(groupNode).Then(reloadNode).Then(syncNode)
 	p.Command().RegisterWithAliases(cmd, cfg.Aliases...)

@@ -11,6 +11,7 @@ import (
 type Config struct {
 	StorageType string   `yaml:"storage-type"` // "mysql" or "sqlite"
 	Aliases     []string `yaml:"aliases"`      // Command aliases like ["pp", "perms"]
+	Admins      []string `yaml:"admins"`       // Proxy-level bypass administrators (Usernames)
 	Database    struct {
 		Host     string `yaml:"host"`
 		Port     int    `yaml:"port"`
@@ -47,6 +48,7 @@ func DefaultConfig() *Config {
 	cfg := &Config{}
 	cfg.StorageType = "sqlite"
 	cfg.Aliases = []string{"pp", "pokepermissions"}
+	cfg.Admins = []string{"your_username_here"} // ডিফল্ট গাইডলাইন হিসেবে জেনারেট হবে
 
 	cfg.Database.Host = "127.0.0.1"
 	cfg.Database.Port = 3306
@@ -61,7 +63,7 @@ func DefaultConfig() *Config {
 	cfg.Messages.PlayerNotFound = "&cTarget player database reference error or offline."
 	cfg.Messages.UserCleared = "&aSuccessfully cleared all permission data for &e%s&a."
 	cfg.Messages.UserParentSet = "&aSet &e%s's &aprimary group to &b%s&a."
-	cfg.Messages.UserParentAddTemp = "&aAdded temporary group &b%s &ato &e%s & afor &d%s&a."
+	cfg.Messages.UserParentAddTemp = "&aAdded temporary group &b%s &ato &e%s &afor &d%s&a."
 	cfg.Messages.UserPermSet = "&aSet permission &b%s &ato &d%t &afor &e%s &8(%s)"
 	cfg.Messages.UserPermUnset = "&aUnset permission &b%s &afor &e%s &8(%s)"
 	cfg.Messages.GroupCreated = "&aGroup &b%s &acreated successfully."
