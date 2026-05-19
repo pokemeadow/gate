@@ -1,0 +1,15 @@
+# CloverSecurity Gate Plugin Configuration
+auth-server: "auth"
+lobby-server: "lobby"
+fallback-servers:
+  - "survival"
+  - "creative"
+
+auth-kick-timeout-seconds: 15
+
+messages:
+  auth-offline: "&cAuthentication server is offline. Please try again later."
+  no-auth-access: "&ePlease authenticate first using /register or /login."
+  auth-blocked: "&cYou are already authenticated. Access to Auth server blocked."
+  transferred: "&aSuccessfully transferred to the lobby."
+  auth-kick: "&cFailed to transfer to lobby. Please reconnect."
