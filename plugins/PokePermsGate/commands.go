@@ -47,7 +47,6 @@ func hasAdminPerm(source command.Source, cfg *Config) bool {
 }
 
 // এটি একটি র‍্যাপার (Wrapper) ফাংশন। এটি শুধুমাত্র অ্যাডমিনদের কমান্ড রান করতে দিবে।
-// ভুলটি এখানেই ছিল (command.Command এর জায়গায় brigodier.Command হবে)
 func adminOnly(cfg *Config, next func(c *command.Context) error) brigodier.Command {
 	return command.Command(func(c *command.Context) error {
 		if !hasAdminPerm(c.Source, cfg) {
@@ -68,7 +67,6 @@ func RegisterCommands(p *proxy.Proxy, storage *Storage, cfg *Config, msgMgr *Mes
 
 	root := brigodier.Literal("pokeperms").
 		Requires(command.Requires(func(c *command.RequiresContext) bool {
-			// এখানে সবসময় true থাকবে যাতে প্লেয়ার জয়েন করার সময় হুদাই এরর মেসেজ না দেয়
 			return true
 		})).
 		Executes(adminOnly(cfg, func(c *command.Context) error {
@@ -102,6 +100,7 @@ func RegisterCommands(p *proxy.Proxy, storage *Storage, cfg *Config, msgMgr *Mes
 							Executes(adminOnly(cfg, h.userPermUnset)))))))
 
 	groupNode := brigodier.Literal("group").
+		Then(brigodier.Literal("list").Executes(adminOnly(cfg, h.groupList))). // নতুন কমান্ড রুট
 		Then(brigodier.Argument("group_name", brigodier.String).
 			Then(brigodier.Literal("create").Executes(adminOnly(cfg, h.groupCreate))).
 			Then(brigodier.Literal("delete").Executes(adminOnly(cfg, h.groupDelete))).
@@ -175,6 +174,32 @@ func optionalServer(c *command.Context) string {
 		return "global"
 	}
 	return val
+}
+
+func (h *commandHandler) groupList(c *command.Context) error {
+	rows, err := h.storage.db.Query("SELECT name, weight FROM pp_groups ORDER BY weight DESC")
+	if err != nil {
+		c.Source.SendMessage(colorText(h.msg("&cDatabase Error: " + err.Error())))
+		return nil
+	}
+	defer rows.Close()
+
+	c.Source.SendMessage(colorText(h.msg("&b&l=== Network Permission Groups ===")))
+	hasGroups := false
+
+	for rows.Next() {
+		var name string
+		var weight int
+		if err := rows.Scan(&name, &weight); err == nil {
+			hasGroups = true
+			c.Source.SendMessage(colorText(h.msg(fmt.Sprintf(" &8• &e%s &7(Weight: %d)", name, weight))))
+		}
+	}
+
+	if !hasGroups {
+		c.Source.SendMessage(colorText(h.msg(" &7No groups found in database. Create one using /pp group <name> create")))
+	}
+	return nil
 }
 
 func (h *commandHandler) userInfo(c *command.Context) error {
