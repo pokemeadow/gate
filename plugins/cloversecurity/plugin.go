@@ -11,8 +11,8 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/common/minecraft/component"
-	"github.com/pokemeadow/gate/pkg/edition/java/proxy"
-	"github.com/pokemeadow/gate/pkg/util/uuid"
+	"go.minekube.com/gate/pkg/edition/java/proxy"
+	"go.minekube.com/gate/pkg/util/uuid"
 	"gopkg.in/yaml.v3"
 )
 

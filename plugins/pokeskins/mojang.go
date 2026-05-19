@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/jellydator/ttlcache/v3"
-	"github.com/pokemeadow/gate/pkg/edition/java/profile"
-	"github.com/pokemeadow/gate/pkg/util/uuid"
+	"go.minekube.com/gate/pkg/edition/java/profile"
+	"go.minekube.com/gate/pkg/util/uuid"
 )
 
 const (

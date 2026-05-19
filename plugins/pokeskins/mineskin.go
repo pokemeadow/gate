@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/pokemeadow/gate/pkg/edition/java/profile"
+	"go.minekube.com/gate/pkg/edition/java/profile"
 )
 
 // MineSkin API endpoints

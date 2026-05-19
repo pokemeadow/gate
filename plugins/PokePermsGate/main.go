@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pokemeadow/gate/pkg/edition/java/proxy"
+	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
 // PluginName and Version metadata variables

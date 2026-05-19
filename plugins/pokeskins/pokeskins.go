@@ -8,9 +8,9 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/robinbraemer/event"
-	"github.com/pokemeadow/gate/pkg/edition/java/profile"
-	"github.com/pokemeadow/gate/pkg/edition/java/proxy"
-	"github.com/pokemeadow/gate/pkg/util/uuid"
+	"go.minekube.com/gate/pkg/edition/java/profile"
+	"go.minekube.com/gate/pkg/edition/java/proxy"
+	"go.minekube.com/gate/pkg/util/uuid"
 )
 
 var Plugin = proxy.Plugin{

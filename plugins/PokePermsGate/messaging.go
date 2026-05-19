@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/pokemeadow/gate/pkg/edition/java/proxy"
+	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
 // SyncChannelID implicitly implements Gate's ChannelIdentifier interface

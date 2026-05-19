@@ -10,8 +10,8 @@ import (
 	"github.com/go-logr/logr"
 	"go.minekube.com/brigodier"
 	"go.minekube.com/common/minecraft/component"
-	"github.com/pokemeadow/gate/pkg/command"
-	"github.com/pokemeadow/gate/pkg/edition/java/proxy"
+	"go.minekube.com/gate/pkg/command"
+	"go.minekube.com/gate/pkg/edition/java/proxy"
 	"gopkg.in/yaml.v3"
 )
 

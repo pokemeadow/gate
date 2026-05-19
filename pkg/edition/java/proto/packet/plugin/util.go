@@ -135,7 +135,7 @@ func RewriteMinecraftBrand(message *Message, protocol proto.Protocol) *Message {
 	}
 
 	currentBrand := ReadBrandMessage(message.Data)
-	rewrittenBrand := fmt.Sprintf("%s (Gate by Minekube)", currentBrand)
+	rewrittenBrand := fmt.Sprintf("%s (PokeGate)", currentBrand)
 
 	rewrittenBuf := new(bytes.Buffer)
 	if protocol.GreaterEqual(version.Minecraft_1_8) {

@@ -10,9 +10,9 @@ import (
 	"go.minekube.com/brigodier"
 	"go.minekube.com/common/minecraft/component"
 	"go.minekube.com/common/minecraft/component/codec/legacy"
-	"github.com/pokemeadow/gate/pkg/command"
-	"github.com/pokemeadow/gate/pkg/edition/java/proxy"
-	"github.com/pokemeadow/gate/pkg/util/uuid"
+	"go.minekube.com/gate/pkg/command"
+	"go.minekube.com/gate/pkg/edition/java/proxy"
+	"go.minekube.com/gate/pkg/util/uuid"
 )
 
 func colorText(s string) component.Component {

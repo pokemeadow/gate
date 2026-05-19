@@ -8,13 +8,13 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/pokemeadow/gate/pkg/edition/java/profile"
-	"github.com/pokemeadow/gate/pkg/util/uuid"
+	"go.minekube.com/gate/pkg/edition/java/profile"
+	"go.minekube.com/gate/pkg/util/uuid"
 )
 
 var errRateLimited = errors.New("rate limited (429)")
 
-const userAgent = "PokeSkins/1.0 (Gate-Proxy; +https://github.com/pokemeadow/gate)"
+const userAgent = "PokeSkins/1.0 (Gate-Proxy; +https://go.minekube.com/gate)"
 
 const playerdbURL = "https://playerdb.co/api/player/minecraft/%s"
 

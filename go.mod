@@ -24,7 +24,6 @@ require (
 	github.com/knadh/koanf/providers/file v1.2.1
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/pires/go-proxyproto v0.9.1
-	github.com/pokemeadow/gate v0.0.0-20260519152956-a6640eaeab19
 	github.com/robinbraemer/event v0.1.1
 	github.com/rs/xid v1.6.0
 	github.com/sandertv/go-raknet v1.13.0
@@ -117,3 +116,5 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
 )
+
+replace go.minekube.com/gate => ./

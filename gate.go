@@ -4,14 +4,14 @@ import (
 	"context"
 	"log"
 
-	"github.com/pokemeadow/gate/plugins/cloversecurity"
-	"github.com/pokemeadow/gate/plugins/pokehub"
-	"github.com/pokemeadow/gate/plugins/pokeskins"
+	"go.minekube.com/gate/plugins/cloversecurity"
+	"go.minekube.com/gate/plugins/pokehub"
+	"go.minekube.com/gate/plugins/pokeskins"
 
-	pokeperms "github.com/pokemeadow/gate/plugins/PokePermsGate"
+	pokeperms "go.minekube.com/gate/plugins/PokePermsGate"
 
-	"github.com/pokemeadow/gate/cmd/gate"
-	"github.com/pokemeadow/gate/pkg/edition/java/proxy"
+	"go.minekube.com/gate/cmd/gate"
+	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
 func main() {
