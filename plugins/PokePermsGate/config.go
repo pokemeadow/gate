@@ -48,7 +48,9 @@ func DefaultConfig() *Config {
 	cfg := &Config{}
 	cfg.StorageType = "sqlite"
 	cfg.Aliases = []string{"pp", "pokepermissions"}
-	cfg.Admins = []string{"your_username_here"} // ডিফল্ট গাইডলাইন হিসেবে জেনারেট হবে
+
+	// আপনার ইউজারনেম ডিফল্ট অ্যাডমিন হিসেবে সেট করা হলো
+	cfg.Admins = []string{"ifte_"}
 
 	cfg.Database.Host = "127.0.0.1"
 	cfg.Database.Port = 3306
@@ -80,25 +82,43 @@ func DefaultConfig() *Config {
 
 // LoadConfig reads the config file or creates it with defaults
 func LoadConfig(dir string) (*Config, error) {
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return nil, err
 	}
 
 	path := filepath.Join(dir, "config.yml")
+
+	// ফাইলের বর্তমান অবস্থা চেক করা হচ্ছে
+	info, err := os.Stat(path)
+
+	// ফাইল যদি না থাকে, অথবা ফাইলের সাইজ যদি ১৫ বাইটের কম হয় (যেমন খালি বা '404: Not Found')
+	if os.IsNotExist(err) || (err == nil && info.Size() <= 15) {
+		cfg := DefaultConfig()
+		d, _ := yaml.Marshal(cfg)
+		if err := os.WriteFile(path, d, 0666); err != nil {
+			return nil, err
+		}
+		return cfg, nil
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			cfg := DefaultConfig()
-			d, _ := yaml.Marshal(cfg)
-			_ = os.WriteFile(path, d, 0644)
-			return cfg, nil
-		}
 		return nil, err
 	}
 
 	cfg := DefaultConfig()
+	// ফাইল রিড করার সময় যদি YAML ফরম্যাট ভুল পায়, তবে ক্র্যাশ না করে নতুন করে ডিফল্ট কনফিগ লিখে দেবে
 	if err := yaml.Unmarshal(data, cfg); err != nil {
-		return nil, err
+		d, _ := yaml.Marshal(cfg)
+		_ = os.WriteFile(path, d, 0666)
+		return cfg, nil
+	}
+
+	// সেফটি চেক: যদি ফাইল আনমার্শাল হলেও মেইন ডেটা খালি থাকে
+	if cfg.StorageType == "" {
+		cfg = DefaultConfig()
+		d, _ := yaml.Marshal(cfg)
+		_ = os.WriteFile(path, d, 0666)
 	}
 
 	return cfg, nil
